@@ -28,11 +28,7 @@ void runtime(void);
 void usage(void);
 bool check_arg(int *argc, register char **argv, register char *s);
 
-//int main(int argc, char **argv) {
-////	printf("Dummy");
-//}
-
-int top(int argc, char **argv)
+int top(int argc, char **argv, const char *fname)
 {
     int i, j, first, last, strategy, out_type, option;
     pPLA PLA, PLA1;
@@ -43,6 +39,13 @@ int top(int argc, char **argv)
     long start;
     extern char *optarg;
     extern int optind;
+	
+	// special internal output buffer
+	FILE *orgOut = stdout;
+	fflush(stdout);
+	FILE *stream;
+	stdout = fopen(fname, "w");
+	// printf("Just something tost this");
 
     start = ptime();
 
@@ -540,6 +543,9 @@ int top(int argc, char **argv)
     sm_cleanup();               /* sparse matrix cleanup */
 
     // exit(0);
+	fflush(stdout);
+	fclose(stdout);
+	stdout = orgOut;
     return 0;
 }
 

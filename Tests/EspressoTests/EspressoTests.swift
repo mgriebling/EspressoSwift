@@ -28,15 +28,18 @@ final class EspressoTests: XCTestCase {
         // Defining Test Cases and Test Methods
         // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
 		let args = ["espresso", /* "-o", "eqntott",*/ "/Users/mikeg/Work/Tests/espresso-logic-master/examples/check2"]
+		let file = "/Users/mikeg/Work/Tests/espresso-logic-master/examples/check2.txt"
 
 		// Create [UnsafeMutablePointer<Int8>]:
 		var cargs = args.map { strdup($0) }
+		
 		// Call C function:
-		let _ = top(Int32(args.count), &cargs)
+		let _ = top(Int32(args.count), &cargs, file.cString(using: .ascii))
+		let content = try String(contentsOfFile: file, encoding: .utf8)
+		print(content)
+		
 		// Free the duplicated strings:
 		for ptr in cargs { free(ptr) }
-		// mainy(&args)
-		// CLib.main(Int32(args.count), UnsafeMutablePointer(UnsafeMutablePointer(args)))
     }
 		
 

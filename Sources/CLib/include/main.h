@@ -113,4 +113,4 @@ struct {
     {0, 0, 0}
 };
 
-// int top(int argc, char **argv);
+int top(int argc, char **argv, const char *fname);
