@@ -5,20 +5,29 @@ import PackageDescription
 
 let package = Package(
     name: "Espresso",
-    products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "Espresso",
-            targets: ["Espresso"]),
-    ],
+//    products: [
+//        // Products define the executables and libraries a package produces, making them visible to other packages.
+//        .library(
+//            name: "Espresso",
+//            targets: ["Espresso"]),
+//    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Espresso"),
+            name: "CLib",
+			resources: [
+				.copy("check2")
+			],
+//			publicHeadersPath: "public",
+			cSettings: [
+				.headerSearchPath("include"),
+//				// .headerSearchPath(".")
+			]
+		),
         .testTarget(
-            name: "EspressoTests",
-            dependencies: ["Espresso"]
+            name: "CLibTests",
+            dependencies: ["CLib"]
         ),
     ]
 )
