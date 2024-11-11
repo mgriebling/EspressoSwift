@@ -17,8 +17,11 @@
 #include "main.h"		/* table definitions for options */
 #include <unistd.h>
 
-static FILE *last_fp;
+// static FILE *last_fp;
 static int input_type = FD_type;
+
+static FILE *orgOut;
+static FILE *last_fp;
 
 void getPLA(int opt, int argc, char **argv, int option, pPLA *PLA, int out_type);
 void delete_arg(int *argc, register char **argv, int num);
@@ -41,11 +44,18 @@ int top(int argc, char **argv, const char *fname)
     extern int optind;
 	
 	// special internal output buffer
-	FILE *orgOut = stdout;
+	orgOut = stdout;
+	// printf("optind = %i", optind);
+ 	optind = 1;			// makes this reentrant on Mac
 	fflush(stdout);
-	FILE *stream;
+	// FILE *stream;
 	stdout = fopen(fname, "w");
-	// printf("Just something tost this");
+	if (stdout == NULL) {
+		fflush(stdout);
+		fclose(stdout);
+		stdout = orgOut;
+	}
+	// fprintf(stream, "Just something to test this");
 
     start = ptime();
 
@@ -555,19 +565,25 @@ void getPLA(int opt, int argc, char **argv, int option, pPLA *PLA, int out_type)
     FILE *fp;
     int needs_dcset, needs_offset;
     char *fname;
-
-    if (opt >= argc) {
-	fp = stdin;
-	fname = "(stdin)";
-    } else {
-	fname = argv[opt];
-	if (strcmp(fname, "-") == 0) {
-	    fp = stdin;
-	} else if ((fp = fopen(argv[opt], "r")) == NULL) {
-	    fprintf(stderr, "%s: Unable to open %s\n", argv[0], fname);
-		return 1; // exit(1);
+	
+	if (opt >= argc) {
+		fp = stdin;
+		fname = "(stdin)";
+	} else {
+		fname = argv[opt];
+		if (strcmp(fname, "-") == 0) {
+			fp = stdin;
+		} else {
+			fp = fopen(fname, "r");
+			if (fp == NULL) {
+				fprintf(stderr, "%s: Unable to open %s\n", argv[0], fname);
+				fflush(stdout);
+				fclose(stdout);
+				stdout = orgOut;
+				exit(1);
+			}
+		}
 	}
-    }
     if (option_table[option].key == KEY_echo) {
 	needs_dcset = (out_type & D_type) != 0;
 	needs_offset = (out_type & R_type) != 0;
@@ -578,12 +594,11 @@ void getPLA(int opt, int argc, char **argv, int option, pPLA *PLA, int out_type)
 
     if (read_pla(fp, needs_dcset, needs_offset, input_type, PLA) == EOF) {
 	    fprintf(stderr, "%s: Unable to find PLA on file %s\n", argv[0], fname);
-		return 1; // exit(1);
+		exit(1);
     }
     (*PLA)->filename = strdup(fname);
     filename = (*PLA)->filename;
-/*    (void) fclose(fp);*/
-/* hackto support -Dmany */
+	/* hackto support -Dmany */
     last_fp = fp;
 }
 
