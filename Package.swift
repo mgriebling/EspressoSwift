@@ -17,7 +17,6 @@ let package = Package(
         .target(
             name: "CLib",
 			path: "Sources/CLib"
-//			publicHeadersPath: "public",
 		),
 		.target(
 			name: "Espresso",
